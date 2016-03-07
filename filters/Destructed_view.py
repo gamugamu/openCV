@@ -5,7 +5,6 @@ class Destructed_view():
     d_resolution = 12
     low_res_image = None
 
-
     def getresolution(self):
         return self._d_resolution
 
@@ -20,4 +19,9 @@ class Destructed_view():
         self.low_res_image = cv2.resize(openCVImage, (self.d_resolution, self.d_resolution))
 
     def size(self):
-        return self.cvImg.shape[:2]
+         s = self.cvImg.shape[:2]
+         return (s[1], s[0])
+
+    def scaleFactor_d_resolution(self):
+        size = self.cvImg.shape[:2]
+        return (size[1] / self.d_resolution, size[0] / self.d_resolution)

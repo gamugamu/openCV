@@ -1,23 +1,28 @@
 from filters import *
 
+reized_lowDef = None
+
 def report_analysis(step_segment):
-    pass
+    step_segment.debug_view(reized_lowDef)
 
 def analyzeTest():
-    list_img = ["n.png", "up.png" , "cat.jpg", "mir.png", "charly.jpg", "mirInv.png", "shape.jpg"]
+    list_img = ["shape.jpg", "mir.png", "n.png", "up.png" , "cat.jpg", "mir.png", "charly.jpg", "mirInv.png"]
+    global reized_lowDef
 
     for x in range (0, len(list_img)):
-        imgCat = cv2.imread(list_img[x], 3)
-        dImage = Step_segment.cvView_as_destructed_view(imgCat)
-        masssD = massD_()
-        masssD.perform_analysis(dImage, report_analysis)
+        img = cv2.imread(list_img[x], 3)
+        dImage = Step_segment.cvView_as_destructed_view(img)
+        massD = massD_()
+        massD.perform_analysis(dImage, report_analysis)
 
-        height, width = imgCat.shape[:2]
-        reized_lowDef = cv2.resize(masssD.destructed_view.low_res_image, (width, height), interpolation=cv2.INTER_AREA)
+        height, width = img.shape[:2]
+        reized_lowDef = cv2.resize(massD.destructed_view.low_res_image, (width, height), interpolation=cv2.INTER_AREA)
+        massD.start_analysis()
 
-        cv2.imshow('image',imgCat)
-        cv2.imshow('image2', reized_lowDef)
-        time.sleep(10)
+        cv2.imshow('frame', img)
+        cv2.imshow('low-frame', reized_lowDef)
+        cv2.waitKey(10000)
+
         #k = cv2.waitKey(1) & 0xFF
         #if k == 27:
 

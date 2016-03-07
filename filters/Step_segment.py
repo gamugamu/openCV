@@ -10,3 +10,9 @@ class Step_segment():
 
     def perform_analysis(self, destructed_view = None, call_back = None):
         pass
+
+    def start_analysis(self):
+        pass
+
+    def debug_view(opencvImage):
+        pass
