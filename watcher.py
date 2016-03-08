@@ -6,7 +6,7 @@ def report_analysis(step_segment):
     step_segment.debug_view(reized_lowDef)
 
 def analyzeTest():
-    list_img = ["n.png", "up.png", "cat.jpg", "shape.jpg", "mir.png", "mir.png", "charly.jpg", "mirInv.png"]
+    list_img = ["cat.jpg",  "mir.png", "n.png", "up.png", "shape.jpg", "charly.jpg", "mirInv.png"]
     global reized_lowDef
 
     for x in range (0, len(list_img)):
@@ -21,7 +21,7 @@ def analyzeTest():
 
         cv2.imshow('frame', img)
         cv2.imshow('low-frame', reized_lowDef)
-        cv2.waitKey(10000)
+        cv2.waitKey(1000)
 
         #k = cv2.waitKey(1) & 0xFF
         #if k == 27:

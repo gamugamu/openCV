@@ -12,10 +12,20 @@ class massD_(Step_segment):
 
     #tache en background
     def bkg_analysis(self):
+        segment_cross_line = self.make_segment_cross_line()
+        self.n_list = []
+        self.node_by_mass(self.n_list, segment_cross_line)
+
+        print "segment_cross_line", segment_cross_line
+        self.call_back(self)
+
+    def make_segment_cross_line(self):
+
         #todo: creer les nodes de segment:
         # normalise
         l_image = self.destructed_view.low_res_image
-        segment_cross_line = np.zeros(Destructed_view.d_resolution - 1, np.int32)
+
+        segment_cross_line = np.zeros(shape=(Destructed_view.d_resolution - 1, 3), dtype=np.int32)
         lhsl_image = cv2.cvtColor(l_image, cv2.COLOR_BGR2HLS)
 
         for x in range(0, Destructed_view.d_resolution):
@@ -23,33 +33,33 @@ class massD_(Step_segment):
 
         #determine la masse de chaque pixel contigue
         for x in range(0, Destructed_view.d_resolution - 1):
-            a = np.int32(lhsl_image[x,x][1])
-            b = np.int32(lhsl_image[x + 1, x + 1][1])
-            segment_cross_line[x] = a - b
+            a = lhsl_image[x,x]
+            b = lhsl_image[x + 1, x + 1]
+            segment_cross_line[x] = a.astype(int) - b.astype(int)
 
+        return segment_cross_line
 
+    #n_list, segment_cross_line, inout
+    def node_by_mass(self, n_list, segment_cross_line):
         mass_weight = np.int32(0)
         n_v = 0
         n = node([0, 0], Destructed_view.d_resolution)
-        self.n_list = []
-        self.n_list.append(n)
+        n_list.append(n)
 
         # permet de creer les nodes entres les masses.
-        for x in range(0, segment_cross_line.size):
-            if segment_cross_line[x] == 0:
+        for x in range(0, segment_cross_line.shape[0]):
+            if segment_cross_line[x][1] == 0:
                 pass
 
-            elif segment_cross_line[x] > 0:
+            elif segment_cross_line[x][1] > 0:
                 if n_v != -1:
-                    n = self.appendNode(n, [x, x])
-
+                    n = self.appendNode(n, [x, x], n_list)
                 mass_weight = mass_weight - 1
                 n_v = -1
 
             else:
                 if n_v != 1:
-                    n = self.appendNode(n, [x, x])
-
+                    n = self.appendNode(n, [x, x], n_list)
                 n_v = 1
                 mass_weight = mass_weight + 1
 
@@ -57,13 +67,10 @@ class massD_(Step_segment):
 
         n.close([x, x])
 
-        print "segment_cross_line", segment_cross_line
-        self.call_back(self)
-
-    def appendNode(self, n, new_position):
+    def appendNode(self, n, new_position, n_list):
         n.close(new_position)
         n = node(new_position, Destructed_view.d_resolution)
-        self.n_list.append(n)
+        n_list.append(n)
         return n
 
     #override
