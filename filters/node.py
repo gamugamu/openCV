@@ -8,7 +8,6 @@ class node():
     e_position = [0, 0]
 
     def __init__(self, start_position = [0, 0], lenght = 0):
-        print "--- new node ---"
         self.w_ = np.zeros(lenght, np.int32)
         self.s_position = start_position
 
@@ -18,7 +17,7 @@ class node():
 
     def close(self, end_position):
         self.e_position = end_position
-
+        print self
 #    def orientation(self):
 #        return
 

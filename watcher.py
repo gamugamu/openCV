@@ -6,7 +6,7 @@ def report_analysis(step_segment):
     step_segment.debug_view(reized_lowDef)
 
 def analyzeTest():
-    list_img = ["shape.jpg", "mir.png", "n.png", "up.png" , "cat.jpg", "mir.png", "charly.jpg", "mirInv.png"]
+    list_img = ["n.png", "up.png", "cat.jpg", "shape.jpg", "mir.png", "mir.png", "charly.jpg", "mirInv.png"]
     global reized_lowDef
 
     for x in range (0, len(list_img)):

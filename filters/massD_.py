@@ -16,25 +16,28 @@ class massD_(Step_segment):
         # normalise
         l_image = self.destructed_view.low_res_image
         segment_cross_line = np.zeros(Destructed_view.d_resolution - 1, np.int32)
-        lhsl_image = cv2.cvtColor(l_image, cv2.COLOR_BGR2HSV)
+        lhsl_image = cv2.cvtColor(l_image, cv2.COLOR_BGR2HLS)
+
+        for x in range(0, Destructed_view.d_resolution):
+            print lhsl_image[x,x]
 
         #determine la masse de chaque pixel contigue
         for x in range(0, Destructed_view.d_resolution - 1):
-            a = np.int32(lhsl_image[x,x][2])
-            b = np.int32(lhsl_image[x + 1, x + 1][2])
+            a = np.int32(lhsl_image[x,x][1])
+            b = np.int32(lhsl_image[x + 1, x + 1][1])
             segment_cross_line[x] = a - b
+
 
         mass_weight = np.int32(0)
         n_v = 0
         n = node([0, 0], Destructed_view.d_resolution)
-
         self.n_list = []
         self.n_list.append(n)
 
         # permet de creer les nodes entres les masses.
         for x in range(0, segment_cross_line.size):
             if segment_cross_line[x] == 0:
-                print "0"
+                pass
 
             elif segment_cross_line[x] > 0:
                 if n_v != -1:
@@ -42,14 +45,13 @@ class massD_(Step_segment):
 
                 mass_weight = mass_weight - 1
                 n_v = -1
-                print "-1"
+
             else:
                 if n_v != 1:
                     n = self.appendNode(n, [x, x])
 
                 n_v = 1
                 mass_weight = mass_weight + 1
-                print "+1"
 
             n.densify(mass_weight)
 
