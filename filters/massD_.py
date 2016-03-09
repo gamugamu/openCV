@@ -20,12 +20,13 @@ class massD_(Step_segment):
         self.call_back(self)
 
     def make_segment_cross_line(self):
-
         #todo: creer les nodes de segment:
         # normalise
         l_image = self.destructed_view.low_res_image
 
         segment_cross_line = np.zeros(shape=(Destructed_view.d_resolution - 1, 3), dtype=np.int32)
+        # seulement les teintes et la luminosité des pixels nous interesse. Le format HLS est
+        # donc le plus approprié.
         lhsl_image = cv2.cvtColor(l_image, cv2.COLOR_BGR2HLS)
 
         for x in range(0, Destructed_view.d_resolution):
@@ -54,6 +55,14 @@ class massD_(Step_segment):
             elif segment_cross_line[x][1] > 0:
                 if n_v != -1:
                     n = self.appendNode(n, [x, x], n_list)
+                # mass_weight est juste une indication scalaire qui informe l'
+                # inclinaison de la masse. De paire avec segment_cross_line, on
+                # determine dans cette inclinaison les differences entre les pixels voisins.
+                # La ou commence une nouvelle node, il y a forcement une grande difference d'inclinaison avec sa
+                # voisine. Et si a l'interieur d'une node, les inclinaisons sont changeantes, on peut en
+                # determiner une granularité dans la masse. En fonction de cette 'granularite', on peut en deduire
+                # si il s'agit d'une texture homogenene ou en degrade, une texture, ou meme du bruit. De meme qu'en liant
+                # les nodes, ont peut determiner si il y a un rythme, ou une direction apparante dans l'image.
                 mass_weight = mass_weight - 1
                 n_v = -1
 
@@ -76,7 +85,7 @@ class massD_(Step_segment):
     #override
     def perform_analysis(self, destructed_view = None, call_back = None):
         self.destructed_view = destructed_view
-        self.call_back  = call_back
+        self.call_back = call_back
 
     def start_analysis(self):
         # l'analyse se fait en bkg. Un rapport est rendu lorsque massD_
@@ -87,6 +96,7 @@ class massD_(Step_segment):
         pass
 
     def debug_view(self, opencvImage):
+        # affiche visuellement le resultat des nodes.
         scale_d_factor = self.destructed_view.scaleFactor_d_resolution()
         colors = [(255, 0, 0), (0, 255, 0)]
 
