@@ -25,8 +25,8 @@ class massD_(Step_segment):
         l_image = self.destructed_view.low_res_image
 
         segment_cross_line = np.zeros(shape=(Destructed_view.d_resolution - 1, 3), dtype=np.int32)
-        # seulement les teintes et la luminosité des pixels nous interesse. Le format HLS est
-        # donc le plus approprié.
+        # seulement les teintes et la luminosite des pixels nous interesse. Le format HLS est
+        # donc le plus approprie.
         lhsl_image = cv2.cvtColor(l_image, cv2.COLOR_BGR2HLS)
 
         for x in range(0, Destructed_view.d_resolution):
@@ -41,6 +41,7 @@ class massD_(Step_segment):
         return segment_cross_line
 
     #n_list, segment_cross_line, inout
+    # retourne une liste de node liee par leur differences d'intensite lumineuse.
     def node_by_mass(self, n_list, segment_cross_line):
         mass_weight = np.int32(0)
         n_v = 0
@@ -60,7 +61,7 @@ class massD_(Step_segment):
                 # determine dans cette inclinaison les differences entre les pixels voisins.
                 # La ou commence une nouvelle node, il y a forcement une grande difference d'inclinaison avec sa
                 # voisine. Et si a l'interieur d'une node, les inclinaisons sont changeantes, on peut en
-                # determiner une granularité dans la masse. En fonction de cette 'granularite', on peut en deduire
+                # determiner une granularite dans la masse. En fonction de cette 'granularite', on peut en deduire
                 # si il s'agit d'une texture homogenene ou en degrade, une texture, ou meme du bruit. De meme qu'en liant
                 # les nodes, ont peut determiner si il y a un rythme, ou une direction apparante dans l'image.
                 mass_weight = mass_weight - 1
@@ -76,6 +77,7 @@ class massD_(Step_segment):
 
         n.close([x, x])
 
+    # lie les nodes les une aux autres.
     def appendNode(self, n, new_position, n_list):
         n.close(new_position)
         n = node(new_position, Destructed_view.d_resolution)
