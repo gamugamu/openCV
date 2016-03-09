@@ -21,7 +21,7 @@ def analyzeTest():
 
         cv2.imshow('frame', img)
         cv2.imshow('low-frame', reized_lowDef)
-        cv2.waitKey(1000)
+        cv2.waitKey(5000)
 
         #k = cv2.waitKey(1) & 0xFF
         #if k == 27:

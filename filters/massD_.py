@@ -9,14 +9,19 @@ from node import node
 class massD_(Step_segment):
 
     n_list = None
+    n_listColor = None
 
     #tache en background
     def bkg_analysis(self):
         segment_cross_line = self.make_segment_cross_line()
         self.n_list = []
-        self.node_by_mass(self.n_list, segment_cross_line)
+        self.n_listColor = []
+        print "xxx", segment_cross_line
 
-        print "segment_cross_line", segment_cross_line
+        self.node_by_mass(self.n_list, segment_cross_line, range_tolerance=(0, 0), hls_index=1)
+        self.node_by_mass(self.n_listColor, segment_cross_line, range_tolerance=(-5, 5), hls_index=0)
+
+        #print "segment_cross_line", segment_cross_line
         self.call_back(self)
 
     def make_segment_cross_line(self):
@@ -29,8 +34,8 @@ class massD_(Step_segment):
         # donc le plus approprie.
         lhsl_image = cv2.cvtColor(l_image, cv2.COLOR_BGR2HLS)
 
-        for x in range(0, Destructed_view.d_resolution):
-            print lhsl_image[x,x]
+        #for x in range(0, Destructed_view.d_resolution):
+        #    print lhsl_image[x,x]
 
         #determine la masse de chaque pixel contigue
         for x in range(0, Destructed_view.d_resolution - 1):
@@ -40,9 +45,9 @@ class massD_(Step_segment):
 
         return segment_cross_line
 
-    #n_list, segment_cross_line, inout
+    # n_list, segment_cross_line, inout
     # retourne une liste de node liee par leur differences d'intensite lumineuse.
-    def node_by_mass(self, n_list, segment_cross_line):
+    def node_by_mass(self, n_list, segment_cross_line, range_tolerance, hls_index):
         mass_weight = np.int32(0)
         n_v = 0
         n = node([0, 0], Destructed_view.d_resolution)
@@ -50,10 +55,15 @@ class massD_(Step_segment):
 
         # permet de creer les nodes entres les masses.
         for x in range(0, segment_cross_line.shape[0]):
-            if segment_cross_line[x][1] == 0:
+            mass_weight = segment_cross_line[x][hls_index] / 255.0
+            if segment_cross_line[x][hls_index] in range(range_tolerance[0], range_tolerance[1]):
+                # ici on definit les petites differences d'inclinaison dans la node.
+                #print "segment_cross_line", segment_cross_line[x][hls_index]
+                #print "segment_cross_line255", segment_cross_line[x][hls_index] / 255.0
                 pass
 
-            elif segment_cross_line[x][1] > 0:
+            # si superieur a 0, alors superieur au range max.
+            elif segment_cross_line[x][hls_index] > 0:
                 if n_v != -1:
                     n = self.appendNode(n, [x, x], n_list)
                 # mass_weight est juste une indication scalaire qui informe l'
@@ -63,15 +73,15 @@ class massD_(Step_segment):
                 # voisine. Et si a l'interieur d'une node, les inclinaisons sont changeantes, on peut en
                 # determiner une granularite dans la masse. En fonction de cette 'granularite', on peut en deduire
                 # si il s'agit d'une texture homogenene ou en degrade, une texture, ou meme du bruit. De meme qu'en liant
-                # les nodes, ont peut determiner si il y a un rythme, ou une direction apparante dans l'image.
-                mass_weight = mass_weight - 1
+                # les nodes, on peut determiner si il y a un rythme, ou une direction apparante dans l'image.
                 n_v = -1
 
+            # si inferieur a 0, alors inferieur au range min.
             else:
                 if n_v != 1:
                     n = self.appendNode(n, [x, x], n_list)
+
                 n_v = 1
-                mass_weight = mass_weight + 1
 
             n.densify(mass_weight)
 
@@ -84,7 +94,7 @@ class massD_(Step_segment):
         n_list.append(n)
         return n
 
-    #override
+    # override
     def perform_analysis(self, destructed_view = None, call_back = None):
         self.destructed_view = destructed_view
         self.call_back = call_back
@@ -101,10 +111,19 @@ class massD_(Step_segment):
         # affiche visuellement le resultat des nodes.
         scale_d_factor = self.destructed_view.scaleFactor_d_resolution()
         colors = [(255, 0, 0), (0, 255, 0)]
+        colors2 = [(0, 0, 255), (0, 0, 0)]
 
-        for x in range(0, len(self.n_list)):
-            node = self.n_list[x]
-            x_scaled = (node.s_position[0] + 1 ) * scale_d_factor[0], (node.s_position[1] + 1 ) * scale_d_factor[1]
-            y_scaled = (node.e_position[0] + 1 ) * scale_d_factor[0], (node.e_position[1] + 1 ) * scale_d_factor[1]
+        self.debug_view_perform_drawing(self.n_list, scale_d_factor, opencvImage, [(255, 0, 0), (0, 255, 0)], 2)
+        self.debug_view_perform_drawing(self.n_listColor, scale_d_factor, opencvImage, [(0, 0, 255), (0, 0, 0)], 2, [0, 10])
 
-            cv2.line(opencvImage, x_scaled, y_scaled, colors[ x % 2 ], 5)
+    def debug_view_perform_drawing(self, nodelist, scale_factor, cv_image, bi_color, line_thickness, overlay=[0,0]):
+        for x in range(0, len(nodelist)):
+            node = nodelist[x]
+
+            s_scaled = (node.s_position[0] + 1 ) * scale_factor[0] + overlay[0], (node.s_position[1] + 1 ) * scale_factor[1] + overlay[1]
+            e_scaled = (node.e_position[0] + 1 ) * scale_factor[0] + overlay[0], (node.e_position[1] + 1 ) * scale_factor[1] + overlay[1]
+
+            (node.s_position[0] + 1 ) * scale_factor[0]
+            cv2.line(cv_image, s_scaled, e_scaled, bi_color[ x % 2 ], line_thickness)
+            cv2.circle(cv_image, s_scaled, 1, bi_color[ x % 2 ], thickness=3)
+            cv2.circle(cv_image, e_scaled, 1, bi_color[ x % 2 ], thickness=3)
