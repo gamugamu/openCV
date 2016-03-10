@@ -16,10 +16,9 @@ class massD_(Step_segment):
         segment_cross_line = self.make_segment_cross_line(np.array([0, 0]), np.array([Destructed_view.d_resolution - 1, Destructed_view.d_resolution - 1]))
         self.n_list = []
         self.n_listColor = []
-        print "xxx", segment_cross_line
 
-        self.node_by_mass(self.n_list, segment_cross_line, range_tolerance=(0, 0), hls_index=1)
-        #self.node_by_mass(self.n_listColor, segment_cross_line, range_tolerance=(-5, 5), hls_index=0)
+        self.node_by_mass(self.n_list, segment_cross_line, range_tolerance=(-1, 1), hls_index=1)
+        self.node_by_mass(self.n_listColor, segment_cross_line, range_tolerance=(-5, 5), hls_index=0)
 
         #print "segment_cross_line", segment_cross_line
         self.call_back(self)
@@ -29,11 +28,9 @@ class massD_(Step_segment):
         # normalise
         l_image = self.destructed_view.low_res_image
         point = e_point - s_point
-        print "lenght ", e_point - s_point
-        print "result", point[0] if point[0] else point[1]
-        lenght = point[0] if point[0] else point[1]
+        segment_lenght = point[0] if point[0] else point[1]
 
-        segment_cross_line = np.zeros(shape=(Destructed_view.d_resolution - 1, 3), dtype=np.int32)
+        segment_cross_line = np.zeros(shape=(segment_lenght, 3), dtype=np.int32)
         # seulement les teintes et la luminosite des pixels nous interesse. Le format HLS est
         # donc le plus approprie.
         lhsl_image = cv2.cvtColor(l_image, cv2.COLOR_BGR2HLS)
@@ -42,7 +39,7 @@ class massD_(Step_segment):
         #    print lhsl_image[x,x]
 
         #determine la masse de chaque pixel contigue
-        for x in range(0, Destructed_view.d_resolution - 1):
+        for x in range(0, segment_lenght):
             a = lhsl_image[x,x]
             b = lhsl_image[x + 1, x + 1]
             segment_cross_line[x] = a.astype(int) - b.astype(int)
