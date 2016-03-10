@@ -13,21 +13,25 @@ class massD_(Step_segment):
 
     #tache en background
     def bkg_analysis(self):
-        segment_cross_line = self.make_segment_cross_line()
+        segment_cross_line = self.make_segment_cross_line(np.array([0, 0]), np.array([Destructed_view.d_resolution - 1, Destructed_view.d_resolution - 1]))
         self.n_list = []
         self.n_listColor = []
         print "xxx", segment_cross_line
 
         self.node_by_mass(self.n_list, segment_cross_line, range_tolerance=(0, 0), hls_index=1)
-        self.node_by_mass(self.n_listColor, segment_cross_line, range_tolerance=(-5, 5), hls_index=0)
+        #self.node_by_mass(self.n_listColor, segment_cross_line, range_tolerance=(-5, 5), hls_index=0)
 
         #print "segment_cross_line", segment_cross_line
         self.call_back(self)
 
-    def make_segment_cross_line(self):
+    def make_segment_cross_line(self, s_point, e_point):
         #todo: creer les nodes de segment:
         # normalise
         l_image = self.destructed_view.low_res_image
+        point = e_point - s_point
+        print "lenght ", e_point - s_point
+        print "result", point[0] if point[0] else point[1]
+        lenght = point[0] if point[0] else point[1]
 
         segment_cross_line = np.zeros(shape=(Destructed_view.d_resolution - 1, 3), dtype=np.int32)
         # seulement les teintes et la luminosite des pixels nous interesse. Le format HLS est
