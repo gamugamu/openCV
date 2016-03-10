@@ -18,8 +18,13 @@ class massD_(Step_segment):
         self.n_list = []
         self.n_listColor = []
 
-        self.node_by_mass(self.n_list, segment_cross_line, range_tolerance=(-1, 1), hls_index=1)
-        self.node_by_mass(self.n_listColor, segment_cross_line, range_tolerance=(-5, 5), hls_index=0)
+        # c_lum : la colonne contenant la luminosite des pixels.
+        # l_med : la moyenne des valeurs des pixels
+        c_lum = segment_cross_line.w_[:,1]
+        l_med = abs(np.median(c_lum).astype(int)) + 1
+
+        self.node_by_mass(self.n_list, segment_cross_line, range_tolerance=(np.amin(c_lum) + l_med, np.amax(c_lum) - l_med), hls_index=1)
+        #self.node_by_mass(self.n_listColor, segment_cross_line, range_tolerance=(-5, 5), hls_index=0)
 
         #print "segment_cross_line", segment_cross_line
         self.call_back(self)
@@ -119,10 +124,10 @@ class massD_(Step_segment):
         # affiche visuellement le resultat des nodes.
         scale_d_factor = self.destructed_view.scaleFactor_d_resolution()
         colors = [(255, 0, 0), (0, 255, 0)]
-        colors2 = [(0, 0, 255), (0, 0, 0)]
+        colors2 = [(0, 255, 255), (0, 0, 0)]
 
-        self.debug_view_perform_drawing(self.n_list, scale_d_factor, opencvImage, [(255, 0, 0), (0, 255, 0)], 2)
-        self.debug_view_perform_drawing(self.n_listColor, scale_d_factor, opencvImage, [(0, 0, 255), (0, 0, 0)], 2, [0, 10])
+        self.debug_view_perform_drawing(self.n_list, scale_d_factor, opencvImage, colors, 2, [0, 0])
+        self.debug_view_perform_drawing(self.n_listColor, scale_d_factor, opencvImage, colors2, 2, [0, 4])
 
     def debug_view_perform_drawing(self, nodelist, scale_factor, cv_image, bi_color, line_thickness, overlay=[0,0]):
         for x in range(0, len(nodelist)):

@@ -29,10 +29,9 @@ class node():
 
     def close(self, end_position):
         self.e_position = end_position
-        print self
 
     def __str__(self):
-        return "<node [" + str(self.w_[0:self.w_i]) + "]> - [" + str(self.s_position) + str(self.e_position) + "]"
+        return "<" + str(self.__class__) + "[" + str(self.w_[0:self.w_i]) + "]> - [" + str(self.s_position) + str(self.e_position) + "]"
 
     def __repr__(self):
         return str(self)
