@@ -5,6 +5,7 @@ import cv2
 import node
 import numpy as np
 from node import node
+from nodeSegment import Node_segment
 
 class massD_(Step_segment):
 
@@ -30,7 +31,8 @@ class massD_(Step_segment):
         point = e_point - s_point
         segment_lenght = point[0] if point[0] else point[1]
 
-        segment_cross_line = np.zeros(shape=(segment_lenght, 3), dtype=np.int32)
+        segment_cross_line = Node_segment(start_position=s_point, end_position=e_point, dimension=3)
+
         # seulement les teintes et la luminosite des pixels nous interesse. Le format HLS est
         # donc le plus approprie.
         lhsl_image = cv2.cvtColor(l_image, cv2.COLOR_BGR2HLS)
@@ -50,7 +52,7 @@ class massD_(Step_segment):
             b_point = n_point * (x + 1)
             b = lhsl_image[b_point[0], b_point[1]]
             # calcule la difference entre un point et le suivant.
-            segment_cross_line[x] = a.astype(int) - b.astype(int)
+            segment_cross_line.densify(a.astype(int) - b.astype(int))
 
         return segment_cross_line
 
@@ -63,16 +65,16 @@ class massD_(Step_segment):
         n = self.appendNode(n=None, new_position=[0, 0], n_list=n_list)
 
         # permet de creer les nodes entres les masses.
-        for x in range(0, segment_cross_line.shape[0]):
-            mass_weight = segment_cross_line[x][hls_index] / 255.0
-            if segment_cross_line[x][hls_index] in range(range_tolerance[0], range_tolerance[1]):
+        for x in range(0, segment_cross_line.w_.shape[0]):
+            mass_weight = segment_cross_line.w_[x][hls_index] / 255.0
+            if segment_cross_line.w_[x][hls_index] in range(range_tolerance[0], range_tolerance[1]):
                 # ici on definit les petites differences d'inclinaison dans la node.
                 #print "segment_cross_line", segment_cross_line[x][hls_index]
                 #print "segment_cross_line255", segment_cross_line[x][hls_index] / 255.0
                 pass
 
             # si superieur a 0, alors superieur au range max.
-            elif segment_cross_line[x][hls_index] > 0:
+            elif segment_cross_line.w_[x][hls_index] > 0:
                 if n_v != -1:
                     n = self.appendNode(n, [x, x], n_list)
                 # mass_weight est juste une indication scalaire qui informe l'

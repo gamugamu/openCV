@@ -11,6 +11,7 @@ class node():
     def __init__(self, start_position = [0, 0], end_position = [0, 0], lenght = 0):
         self.w_ = np.zeros(lenght, np.float32)
         self.s_position = start_position
+        self.e_position = end_position
 
     def densify(self, mass):
         self.w_[self.w_i] = round(mass, 2)
