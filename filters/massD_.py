@@ -38,10 +38,18 @@ class massD_(Step_segment):
         #for x in range(0, Destructed_view.d_resolution):
         #    print lhsl_image[x,x]
 
-        #determine la masse de chaque pixel contigue
+        # axe normalise. Permet d'iterer le long de la ligne.
+        n_point = np.array((s_point + e_point) / (s_point + e_point))
+
+        # determine la masse de chaque pixel contigue, en iterant le long
+        # de la ligne.
         for x in range(0, segment_lenght):
-            a = lhsl_image[x,x]
-            b = lhsl_image[x + 1, x + 1]
+            a_point = n_point * x
+            a = lhsl_image[a_point[0], a_point[1]]
+
+            b_point = n_point * (x + 1)
+            b = lhsl_image[b_point[0], b_point[1]]
+            # calcule la difference entre un point et le suivant.
             segment_cross_line[x] = a.astype(int) - b.astype(int)
 
         return segment_cross_line
@@ -50,9 +58,9 @@ class massD_(Step_segment):
     # retourne une liste de node liee par leur differences d'intensite lumineuse.
     def node_by_mass(self, n_list, segment_cross_line, range_tolerance, hls_index):
         mass_weight = np.int32(0)
+
         n_v = 0
-        n = node([0, 0], Destructed_view.d_resolution)
-        n_list.append(n)
+        n = self.appendNode(n=None, new_position=[0, 0], n_list=n_list)
 
         # permet de creer les nodes entres les masses.
         for x in range(0, segment_cross_line.shape[0]):
@@ -90,8 +98,10 @@ class massD_(Step_segment):
 
     # lie les nodes les une aux autres.
     def appendNode(self, n, new_position, n_list):
-        n.close(new_position)
-        n = node(new_position, Destructed_view.d_resolution)
+        if n is not None:
+            n.close(new_position)
+
+        n = node(new_position, lenght=Destructed_view.d_resolution)
         n_list.append(n)
         return n
 
