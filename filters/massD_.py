@@ -28,28 +28,22 @@ class massD_(Step_segment):
         #todo: creer les nodes de segment:
         # normalise
         l_image = self.destructed_view.low_res_image
-        point = e_point - s_point
-        segment_lenght = point[0] if point[0] else point[1]
-
         segment_cross_line = Node_segment(start_position=s_point, end_position=e_point, dimension=3)
 
         # seulement les teintes et la luminosite des pixels nous interesse. Le format HLS est
         # donc le plus approprie.
         lhsl_image = cv2.cvtColor(l_image, cv2.COLOR_BGR2HLS)
 
-        #for x in range(0, Destructed_view.d_resolution):
-        #    print lhsl_image[x,x]
-
         # axe normalise. Permet d'iterer le long de la ligne.
-        n_point = np.array((s_point + e_point) / (s_point + e_point))
+        n_vector = segment_cross_line.normalised_vector()
 
         # determine la masse de chaque pixel contigue, en iterant le long
         # de la ligne.
-        for x in range(0, segment_lenght):
-            a_point = n_point * x
+        for x in range(0, segment_cross_line.lenght()):
+            a_point = n_vector * x
             a = lhsl_image[a_point[0], a_point[1]]
 
-            b_point = n_point * (x + 1)
+            b_point = n_vector * (x + 1)
             b = lhsl_image[b_point[0], b_point[1]]
             # calcule la difference entre un point et le suivant.
             segment_cross_line.densify(a.astype(int) - b.astype(int))
@@ -65,8 +59,9 @@ class massD_(Step_segment):
         n = self.appendNode(n=None, new_position=[0, 0], n_list=n_list)
 
         # permet de creer les nodes entres les masses.
-        for x in range(0, segment_cross_line.w_.shape[0]):
+        for x in range(0, segment_cross_line.lenght()):
             mass_weight = segment_cross_line.w_[x][hls_index] / 255.0
+
             if segment_cross_line.w_[x][hls_index] in range(range_tolerance[0], range_tolerance[1]):
                 # ici on definit les petites differences d'inclinaison dans la node.
                 #print "segment_cross_line", segment_cross_line[x][hls_index]
@@ -76,7 +71,7 @@ class massD_(Step_segment):
             # si superieur a 0, alors superieur au range max.
             elif segment_cross_line.w_[x][hls_index] > 0:
                 if n_v != -1:
-                    n = self.appendNode(n, [x, x], n_list)
+                    n = self.appendNode(n, segment_cross_line.positionAtIndex(x), n_list)
                 # mass_weight est juste une indication scalaire qui informe l'
                 # inclinaison de la masse. De paire avec segment_cross_line, on
                 # determine dans cette inclinaison les differences entre les pixels voisins.
@@ -90,13 +85,13 @@ class massD_(Step_segment):
             # si inferieur a 0, alors inferieur au range min.
             else:
                 if n_v != 1:
-                    n = self.appendNode(n, [x, x], n_list)
+                    n = self.appendNode(n, segment_cross_line.positionAtIndex(x), n_list)
 
                 n_v = 1
 
             n.densify(mass_weight)
 
-        n.close([x, x])
+        n.close(segment_cross_line.positionAtIndex(x))
 
     # lie les nodes les une aux autres.
     def appendNode(self, n, new_position, n_list):

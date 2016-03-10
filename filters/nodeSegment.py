@@ -15,5 +15,6 @@ class Node_segment(node):
         self.w_[self.w_i] = mass
         self.w_i = self.w_i + 1
 
-    def __str__(self):
-        return "<node [" + str(self.w_[0:self.w_i]) + "]> - [" + str(self.s_position) + str(self.e_position) + "]"
+    def positionAtIndex(self, index):
+        n_vector = self.normalised_vector()
+        return self.s_position + n_vector * index

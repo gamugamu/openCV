@@ -17,8 +17,11 @@ class node():
         self.w_[self.w_i] = round(mass, 2)
         self.w_i = self.w_i + 1
 
+    def normalised_vector(self):
+        return np.array((self.s_position + self.e_position) / (self.s_position + self.e_position))
+
     def lenght(self):
-        point = e_position - s_position
+        point = self.e_position - self.s_position
         return point[0] if point[0] else point[1]
 
     def size(self):
