@@ -23,7 +23,7 @@ def analyzeTest():
         reized_lowDef = cv2.resize(mass_f.destructed_view.low_res_image, (width, height), interpolation=cv2.INTER_AREA)
         mass_f.start_analysis()
 
-        cv2.waitKey(10)
+        cv2.waitKey(100)
         cv2.imshow('frame', img)
         cv2.imshow('low-frame', reized_lowDef)
         k = cv2.waitKey(0)
