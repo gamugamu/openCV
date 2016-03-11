@@ -35,3 +35,13 @@ class node():
 
     def __repr__(self):
         return str(self)
+
+    @staticmethod
+    def appendNode(n, new_position, n_list, lenght):
+        if n is not None:
+            n.close(new_position)
+
+        n = node(new_position, lenght=lenght)
+        n_list.append(n)
+
+        return n
