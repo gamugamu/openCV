@@ -16,7 +16,7 @@ class node():
         self.s_position = start_position
         self.e_position = end_position
 
-    # rajoute une masse à la node.
+    # rajoute une masse a la node.
     def densify(self, mass):
         self.w_[self.w_i] = round(mass, 2)
         self.w_i = self.w_i + 1

@@ -104,6 +104,29 @@ class massD_(Step_segment):
 
         # recuperation de la node la plus visible:
         heaviest_node = sorted(self.n_list, key=lambda x: x.condensed_point(), reverse=True)[0]
-        pnt = heaviest_node.absolute_point_of_condensed_point() * scale_factor
+        pnt = (heaviest_node.absolute_point_of_condensed_point()) * scale_factor
         print "n_list\n", self.n_list
         cv2.circle(cv_image, tuple(pnt), 10, (255, 0, 255), thickness=3)
+
+        self.neighborhooding(scale_factor, cv_image)
+
+
+    def neighborhooding(self, scale_factor, cv_image):
+        heaviest_node = sorted(self.n_list, key=lambda x: x.condensed_point(), reverse=True)[0]
+        pnt = heaviest_node.absolute_point_of_condensed_point()
+        print pnt
+        pnt = pnt + [0.5, 0.5]
+        print pnt
+
+        m = np.array([ [[-1, -1], [0, -1], [1,-1]], [[-1, 0], [0,0], [1, 0]], [[-1,1], [0,1], [1,1]] ])
+        #neighbor = self.massD_s.lhsl_image[pnt[0]-1 : pnt[0]+2, pnt[1]-1 : pnt[1]+2]
+        transform = m + pnt
+        print "j", transform
+
+        for x in range(0, 3):
+            for y in range(0, 3):
+                cv2.circle(cv_image, tuple( (transform[x][y] * scale_factor).astype(int)), 2, (100, 50, 255), thickness=3)
+
+        #print "T :", pnt[0]-1 : pnt[0]+2, pnt[1]-1 : pnt[1]+2]
+        print "xxx : ", self.massD_s.lhsl_image[pnt[0] , pnt[1]]
+        print "point : >", self.massD_s.lhsl_image[pnt[0]-1 : pnt[0]+2, pnt[1]-1 : pnt[1]+2]
