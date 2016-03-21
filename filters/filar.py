@@ -1,6 +1,6 @@
 import numpy as np
 
-class node():
+class filar():
     # weigth list
     w_ = None #[np.float32]
     # incrementateur de la longueur de la node
@@ -54,17 +54,17 @@ class node():
         self.e_position = end_position
 
     def __str__(self):
-        return "<" + str(self.__class__) + "[" + str(self.w_[0:self.w_i]) + "]> - [" + str(self.s_position) + str(self.e_position) + "]" + "\n"
+        return "<" + str(self.__class__) + "[" + str(self.w_[0:self.w_i]) + "]> - [position: " + str(self.s_position) + str(self.e_position) + "]" + "\n"
 
     def __repr__(self):
         return str(self)
 
     @staticmethod
-    def appendNode(n, new_position, n_list, lenght):
-        if n is not None:
-            n.close(new_position)
+    def appendFilar(f, new_position, f_list, lenght):
+        if f is not None:
+            f.close(new_position)
 
-        n = node(new_position, lenght=lenght)
-        n_list.append(n)
+        f = filar(new_position, lenght=lenght)
+        f_list.append(f)
 
-        return n
+        return f

@@ -1,7 +1,7 @@
 import numpy as np
-from node import node
+from filar import filar
 
-class Node_segment(node):
+class filar_segment(filar):
 
     def __init__(self, start_position = [0, 0], end_position = [0, 0], dimension=3, dtype_=np.int32):
         point = end_position - start_position
