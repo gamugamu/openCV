@@ -1,5 +1,7 @@
+# coding: utf8
 import numpy as np
 
+# un fil determine la continuité des pixel selon leur luminosité.
 class filar():
     # weigth list
     w_ = None #[np.float32]
@@ -54,7 +56,7 @@ class filar():
         self.e_position = end_position
 
     def __str__(self):
-        return "<" + str(self.__class__) + "[" + str(self.w_[0:self.w_i]) + "]> - [position: " + str(self.s_position) + str(self.e_position) + "]" + "\n"
+        return "< filar " + "[" + str(self.w_[0:self.w_i]) + "]> - [position: " + str(self.s_position) + str(self.e_position) + "]" + "\n"
 
     def __repr__(self):
         return str(self)

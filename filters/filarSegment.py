@@ -1,6 +1,7 @@
 import numpy as np
 from filar import filar
 
+# contient la liste des fils.
 class filar_segment(filar):
 
     def __init__(self, start_position = [0, 0], end_position = [0, 0], dimension=3, dtype_=np.int32):

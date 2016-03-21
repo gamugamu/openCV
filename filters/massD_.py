@@ -6,6 +6,7 @@ import numpy as np
 from filar import filar
 from filarSegment import filar_segment
 from massD_segmenter import massD_segmenter
+from shape.node import node
 
 class massD_(Step_segment):
 
@@ -114,18 +115,22 @@ class massD_(Step_segment):
     def neighborhooding(self, scale_factor, cv_image):
         heaviest_node = sorted(self.f_list, key=lambda x: x.condensed_point(), reverse=True)[0]
         pnt = heaviest_node.absolute_point_of_condensed_point()
-        print "point selectionné : \n", self.massD_s.lhsl_image[pnt[0] , pnt[1]]
 
+        # note resolution à gerer.
+        n = node(pnt, px_value = self.massD_s.lhsl_image[pnt[0] , pnt[1]], depth_resolution_plan = 0)
+        print n
+
+        # ------- purement GUI
         pnt = pnt + [0.5, 0.5]
 
         # selection des pixels voisin (8 au total + le pixel central).
-        m = np.array([ [[-1, -1], [0, -1], [1,-1]], [[-1, 0], [0,0], [1, 0]], [[-1,1], [0,1], [1,1]] ])
-        transform = m + pnt
+        # m_neighboor : matrix of node neighboor.
+        m_neighboor = np.array([ [[-1, -1], [0, -1], [1,-1]], [[-1, 0], [0,0], [1, 0]], [[-1,1], [0,1], [1,1]] ])
+        transform = m_neighboor + pnt
 
         for x in range(0, 3):
             for y in range(0, 3):
                 cv2.circle(cv_image, tuple( (transform[x][y] * scale_factor).astype(int)), 2, (100, 50, 255), thickness=3)
 
-        #print "T :", pnt[0]-1 : pnt[0]+2, pnt[1]-1 : pnt[1]+2]
         print "point selectionné : \n", self.massD_s.lhsl_image[pnt[0] , pnt[1]]
         print "\nvoisin : >\n", self.massD_s.lhsl_image[pnt[0]-1 : pnt[0]+2, pnt[1]-1 : pnt[1]+2]

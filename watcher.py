@@ -1,3 +1,4 @@
+# coding: utf8
 from filters import *
 
 reized_lowDef = None

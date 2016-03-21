@@ -1,10 +1,8 @@
-
 import cv2
-import node
+import filar
 import numpy as np
-from nodeSegment import Node_segment
+from filarSegment import filar_segment
 from Step_segment import *
-
 
 class massD_segmenter(Step_segment):
     lhsl_image  = None
@@ -14,7 +12,7 @@ class massD_segmenter(Step_segment):
         if self.lhsl_image is not None:
             #todo: creer les nodes de segment:
             # normalise
-            segment = Node_segment(start_position=np.array(s_point), end_position=np.array(e_point), dimension=3)
+            segment = filar_segment(start_position=np.array(s_point), end_position=np.array(e_point), dimension=3)
 
             # axe normalise. Permet d'iterer le long de la ligne.
             n_vector = segment.normalised_vector()
@@ -31,7 +29,7 @@ class massD_segmenter(Step_segment):
                 segment.densify(a.astype(int) - b.astype(int))
 
             self.segments.append(segment)
-            
+
             return segment
         else:
             return None
