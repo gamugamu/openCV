@@ -19,7 +19,7 @@ class node():
 
     def append(self, node_neighboorg):
         self.neighboorg.append(node_neighboorg)
-        
+
     # print
     def __str__(self):
         return "<#" +  str(id(self)) + " node>" + " [pnt:" + str(self.pnt) + " - resolution: " + str(self.depth_resolution_plan) + " - px_value: " + str(self.px_value) + "]\n"

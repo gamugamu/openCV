@@ -6,7 +6,7 @@ import numpy as np
 from filar import filar
 from filarSegment import filar_segment
 from massD_segmenter import massD_segmenter
-from shape.node import node
+from shape.blobNodes import blob_nodes
 
 class massD_(Step_segment):
 
@@ -117,16 +117,29 @@ class massD_(Step_segment):
         pnt = heaviest_node.absolute_point_of_condensed_point()
 
         # note resolution à gerer.
-        n = node(pnt, px_value = self.massD_s.lhsl_image[pnt[0] , pnt[1]], depth_resolution_plan = 0)
-        print n
+        blob = blob_nodes(pnt, px_value = self.massD_s.lhsl_image[pnt[0], pnt[1]], depth_resolution_plan = 0)
+        print blob
 
-        # ------- purement GUI
-        pnt = pnt + [0.5, 0.5]
-
+        blob.develop(lhslimage=self.massD_s.lhsl_image)
+        return
         # selection des pixels voisin (8 au total + le pixel central).
         # m_neighboor : matrix of node neighboor.
         m_neighboor = np.array([ [[-1, -1], [0, -1], [1,-1]], [[-1, 0], [0,0], [1, 0]], [[-1,1], [0,1], [1,1]] ])
         transform = m_neighboor + pnt
+
+        # détection des voisins similaires:
+        for x in range(0, 3):
+            for y in range(0, 3):
+                if x == 1 and y == 1:
+                    print "pass " + str(transform[x][y])
+                else:
+                    #neighboor
+                    pnt = transform[x][y]
+                    nb = node(pnt, px_value = self.massD_s.lhsl_image[pnt[0], pnt[1]], depth_resolution_plan = 0)
+                    print nb
+
+        # ------- purement GUI
+        transform = transform + [0.5, 0.5]
 
         for x in range(0, 3):
             for y in range(0, 3):
