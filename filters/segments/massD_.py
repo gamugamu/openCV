@@ -3,10 +3,10 @@ from Step_segment import *
 import threading
 import cv2
 import numpy as np
-from shape.filar import filar
-from shape.filarSegment import filar_segment
+from filters.shape.filar import filar
+from filters.shape.filarSegment import filar_segment
+from filters.shape.blobNodes import blob_nodes
 from massD_segmenter import massD_segmenter
-from shape.blobNodes import blob_nodes
 
 # gère la logique d'appeler massD_segmenter pour decouper l'image en masse. Décide de continer de segmenter ou pas.
 # (Step_segment)

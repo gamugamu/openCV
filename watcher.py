@@ -1,6 +1,6 @@
 # coding: utf8
 from filters import *
-
+from filters.segments import *
 reized_lowDef = None
 
 def report_analysis(step_segment):

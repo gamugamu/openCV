@@ -1,4 +1,4 @@
-from Destructed_view import Destructed_view
+from filters.Destructed_view import Destructed_view
 
 # template
 class Step_segment():
