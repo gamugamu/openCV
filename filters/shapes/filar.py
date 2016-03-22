@@ -1,8 +1,10 @@
 # coding: utf8
+from shape import shape
 import numpy as np
+import cv2
 
 # un fil determine la continuité des pixel selon leur luminosité.
-class filar():
+class filar(shape):
     # weigth list
     w_ = None #[np.float32]
     # incrementateur de la longueur de la node
@@ -36,6 +38,9 @@ class filar():
     def condensed_point(self):
         return np.amax(np.absolute(self.w_[0:self.w_i]))
 
+    def condssensed_point(self):
+        return np.amax(np.absolute(self.w_[0:self.w_i]))
+
     # retourne l'index de la valeur absolue la plus elevee.
     def idx_condensed_point(self):
         # pour rappel, les nodes ont un decalage de 1 point vers la gauche, puisqu'ils
@@ -54,6 +59,15 @@ class filar():
     # ferme la node
     def close(self, end_position):
         self.e_position = end_position
+
+    # GUI
+    def debug_view(self, scale_factor, cv_image, color):
+        s_scaled = (self.s_position[0] + 1 ) * scale_factor[0], (self.s_position[1] + 1 ) * scale_factor[1]
+        e_scaled = (self.e_position[0] + 1 ) * scale_factor[0], (self.e_position[1] + 1 ) * scale_factor[1]
+
+        cv2.line(cv_image, s_scaled, e_scaled, color, thickness=3)
+        cv2.circle(cv_image, s_scaled, 1, color, thickness=3)
+        cv2.circle(cv_image, e_scaled, 1, color, thickness=3)
 
     def __str__(self):
         return "< filar " + "[" + str(self.w_[0:self.w_i]) + "]> - [position: " + str(self.s_position) + str(self.e_position) + "]" + "\n"

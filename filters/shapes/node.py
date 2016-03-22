@@ -1,9 +1,11 @@
 # coding: utf8
+from shape import shape
+import cv2
 
 # Une node représente un groupement de valeurs de pixel ou un l'état d'un pixel. Les nodes
 # peuvent s'attacher entre elles, s'inserer l'une dans l'autre afnin d'exprimer des relations.
 
-class node():
+class node(shape):
     pnt = None
     px_value = None # [hls]
     depth_resolution_plan = 0
@@ -19,6 +21,10 @@ class node():
 
     def append(self, node_neighboorg):
         self.neighboorg.append(node_neighboorg)
+
+    # GUI
+    def debug_view(self, scale_factor, cv_image, color):
+        cv2.circle(cv_image, tuple( ((self.pnt + [0.5, 0.5]) * scale_factor).astype(int)), 2, color, thickness=3)
 
     # print
     def __str__(self):

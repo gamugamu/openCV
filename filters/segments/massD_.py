@@ -3,9 +3,9 @@ from Step_segment import *
 import threading
 import cv2
 import numpy as np
-from filters.shape.filar import filar
-from filters.shape.filarSegment import filar_segment
-from filters.shape.blobNodes import blob_nodes
+from filters.shapes.filar import filar
+from filters.shapes.filarSegment import filar_segment
+from filters.shapes.blobNodes import blob_nodes
 from massD_segmenter import massD_segmenter
 
 # gère la logique d'appeler massD_segmenter pour decouper l'image en masse. Décide de continer de segmenter ou pas.
@@ -71,7 +71,6 @@ class massD_(Step_segment):
 
                 f_v = 1
 
-
         f.close(segment.positionAtIndex(x))
 
     # override
@@ -90,29 +89,12 @@ class massD_(Step_segment):
     def debug_view(self, opencvImage):
         # affiche visuellement le resultat des fils.
         scale_d_factor = self.destructed_view.scaleFactor_d_resolution()
-        colors = [(255, 0, 0), (0, 255, 0)]
+        bi_color = [(255, 0, 0), (0, 255, 0)]
 
-        self.debug_view_perform_drawing(self.f_list, scale_d_factor, opencvImage, colors, 2, [0, 0])
+        for x in range(0, len(self.f_list)):
+            self.f_list[x].debug_view(scale_d_factor, opencvImage, bi_color[x % 2])
 
-    def debug_view_perform_drawing(self, filar_list, scale_factor, cv_image, bi_color, line_thickness, overlay=[0,0]):
-        for x in range(0, len(filar_list)):
-            filar = filar_list[x]
-
-            s_scaled = (filar.s_position[0] + 1 ) * scale_factor[0] + overlay[0], (filar.s_position[1] + 1 ) * scale_factor[1] + overlay[1]
-            e_scaled = (filar.e_position[0] + 1 ) * scale_factor[0] + overlay[0], (filar.e_position[1] + 1 ) * scale_factor[1] + overlay[1]
-
-            cv2.line(cv_image, s_scaled, e_scaled, bi_color[ x % 2 ], line_thickness)
-            cv2.circle(cv_image, s_scaled, 1, bi_color[ x % 2 ], thickness=3)
-            cv2.circle(cv_image, e_scaled, 1, bi_color[ x % 2 ], thickness=3)
-
-        # recuperation du fil le plus visible:
-        heaviest_filar = sorted(self.f_list, key=lambda x: x.condensed_point(), reverse=True)[0]
-        pnt = (heaviest_filar.absolute_point_of_condensed_point()) * scale_factor
-        print "n_list\n", self.f_list
-        cv2.circle(cv_image, tuple(pnt), 10, (255, 0, 255), thickness=3)
-
-        self.neighborhooding(scale_factor, cv_image)
-
+        self.neighborhooding(scale_d_factor, opencvImage)
 
     def neighborhooding(self, scale_factor, cv_image):
         #on récupère le fil qui a le contraste le plus elevé.
@@ -121,16 +103,7 @@ class massD_(Step_segment):
 
         # note resolution à gerer.
         blob = blob_nodes(pnt, px_value = self.massD_s.lhsl_image[pnt[0], pnt[1]], depth_resolution_plan = 0)
-        print blob
-
+        # retrouve les nodes voisines
         blob.develop(lhslimage=self.massD_s.lhsl_image)
-        return
-        # ------- purement GUI
-        transform = transform + [0.5, 0.5]
 
-        for x in range(0, 3):
-            for y in range(0, 3):
-                cv2.circle(cv_image, tuple( (transform[x][y] * scale_factor).astype(int)), 2, (100, 50, 255), thickness=3)
-
-        print "point selectionné : \n", self.massD_s.lhsl_image[pnt[0] , pnt[1]]
-        print "\nvoisin : >\n", self.massD_s.lhsl_image[pnt[0]-1 : pnt[0]+2, pnt[1]-1 : pnt[1]+2]
+        blob.debug_view(scale_factor, cv_image, (100, 50, 255))
