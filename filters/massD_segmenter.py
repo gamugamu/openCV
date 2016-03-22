@@ -1,9 +1,10 @@
 import cv2
-import filar
 import numpy as np
-from filarSegment import filar_segment
 from Step_segment import *
+from shape.filar import filar
+from shape.filarSegment import filar_segment
 
+# segmente les masses visuelles. Soit en filars, soit en node (blob_nodes)
 class massD_segmenter(Step_segment):
     lhsl_image  = None
     segments    = None

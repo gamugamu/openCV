@@ -3,11 +3,13 @@ from Step_segment import *
 import threading
 import cv2
 import numpy as np
-from filar import filar
-from filarSegment import filar_segment
+from shape.filar import filar
+from shape.filarSegment import filar_segment
 from massD_segmenter import massD_segmenter
 from shape.blobNodes import blob_nodes
 
+# gère la logique d'appeler massD_segmenter pour decouper l'image en masse. Décide de continer de segmenter ou pas.
+# (Step_segment)
 class massD_(Step_segment):
 
     f_list = None
@@ -113,8 +115,9 @@ class massD_(Step_segment):
 
 
     def neighborhooding(self, scale_factor, cv_image):
-        heaviest_node = sorted(self.f_list, key=lambda x: x.condensed_point(), reverse=True)[0]
-        pnt = heaviest_node.absolute_point_of_condensed_point()
+        #on récupère le fil qui a le contraste le plus elevé.
+        heaviest_filar = sorted(self.f_list, key=lambda x: x.condensed_point(), reverse=True)[0]
+        pnt = heaviest_filar.absolute_point_of_condensed_point()
 
         # note resolution à gerer.
         blob = blob_nodes(pnt, px_value = self.massD_s.lhsl_image[pnt[0], pnt[1]], depth_resolution_plan = 0)
@@ -122,22 +125,6 @@ class massD_(Step_segment):
 
         blob.develop(lhslimage=self.massD_s.lhsl_image)
         return
-        # selection des pixels voisin (8 au total + le pixel central).
-        # m_neighboor : matrix of node neighboor.
-        m_neighboor = np.array([ [[-1, -1], [0, -1], [1,-1]], [[-1, 0], [0,0], [1, 0]], [[-1,1], [0,1], [1,1]] ])
-        transform = m_neighboor + pnt
-
-        # détection des voisins similaires:
-        for x in range(0, 3):
-            for y in range(0, 3):
-                if x == 1 and y == 1:
-                    print "pass " + str(transform[x][y])
-                else:
-                    #neighboor
-                    pnt = transform[x][y]
-                    nb = node(pnt, px_value = self.massD_s.lhsl_image[pnt[0], pnt[1]], depth_resolution_plan = 0)
-                    print nb
-
         # ------- purement GUI
         transform = transform + [0.5, 0.5]
 
