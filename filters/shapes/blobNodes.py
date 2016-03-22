@@ -1,6 +1,7 @@
 # coding: utf8
 from node import node
 import numpy as np
+import cv2
 
 # Un blobNodes représente une matrice 9*9 de nodes conjointes ainsi que son orientation. Les blobNodes
 # peuvent s'attacher entre elles afin d'exprimer des relations.
@@ -40,9 +41,12 @@ class blob_nodes(node):
     def debug_view(self, scale_factor, cv_image, color):
         for node in self.n_list:
             node.debug_view(scale_factor, cv_image, color)
-            #for y in range(0, 3):
-            #    cv2.circle(cv_image, tuple( (transform[x][y] * scale_factor).astype(int)), 2, (100, 50, 255), thickness=3)
 
+        x1 = tuple( ((self.pnt - [1, 1]) * scale_factor).astype(int))
+        # ! le point est décentré de 0.5 d'ou le rapport -1 / 2 sir ine matrice 9*9
+        x2 = tuple( ((self.pnt + [2, 2]) * scale_factor).astype(int))
+
+        cv2.rectangle(cv_image, x1, x2, color, 2)
     # print
     def __str__(self):
         return "<#" +  str(id(self)) + " blob_nodes>" + " [pnt:" + str(self.pnt) + " - resolution: " + str(self.depth_resolution_plan) + " - px_value: " + str(self.px_value) + "]\n"

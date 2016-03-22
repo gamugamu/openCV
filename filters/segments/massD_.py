@@ -104,6 +104,6 @@ class massD_(Step_segment):
         # note resolution à gerer.
         blob = blob_nodes(pnt, px_value = self.massD_s.lhsl_image[pnt[0], pnt[1]], depth_resolution_plan = 0)
         # retrouve les nodes voisines
-        blob.develop(lhslimage=self.massD_s.lhsl_image)
+        blob.develop(lhslimage=self.massD_s.lhsl_image, threshold=40)
 
         blob.debug_view(scale_factor, cv_image, (100, 50, 255))
