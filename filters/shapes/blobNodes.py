@@ -6,17 +6,36 @@ import cv2
 # Un blobNodes représente une matrice 9*9 de nodes conjointes ainsi que son orientation. Les blobNodes
 # peuvent s'attacher entre elles afin d'exprimer des relations.
 
+class blob_orientation:
+    NONE    = 0
+    LEFT    = 1
+    RIGHT   = 2
+    UP      = 4
+    DOWN    = 8
+
+    @staticmethod
+    def orientation_from_pnt(pnt):
+        orientation = blob_orientation.NONE
+        orientation |= blob_orientation.LEFT    if pnt[0] == 1  else blob_orientation.NONE
+        orientation |= blob_orientation.RIGHT   if pnt[0] == -1 else blob_orientation.NONE
+        orientation |= blob_orientation.UP      if pnt[1] == 1  else blob_orientation.NONE
+        orientation |= blob_orientation.DOWN    if pnt[1] == -1 else blob_orientation.NONE
+        return orientation
+
 class blob_nodes(node):
-    n_list = None
+    n_list = None # [node]
+    orientation = blob_orientation.NONE
 
     # constitue la liste des pixels qui lui sont similaire en luminosité.
-    def develop(self, lhslimage, threshold=10):
+    def develop(self, lhslimage, threshold=10, blob_pixel_lum=None):
         self.n_list = []
 
         # selection des pixels voisin (8 au total + le pixel central).
         # m_neighboor : matrix of node neighboor.
         m_neighboor = self.matrice_neighboor()
-        blob_pixel_lum = lhslimage[self.pnt[0], self.pnt[1]][1]
+
+        if blob_pixel_lum == None:
+            blob_pixel_lum = lhslimage[self.pnt[0], self.pnt[1]][1]
 
         # détection des voisins similaires:
         for x in range(0, 3):
@@ -29,8 +48,18 @@ class blob_nodes(node):
                 if abs(int(blob_pixel_lum) - int(px_value[1])) < threshold:
                     nb = node(pnt, px_value = px_value, depth_resolution_plan = 0)
                     self.n_list.append(nb)
+                    self.orientation |= blob_orientation.orientation_from_pnt(self.pnt - pnt)
 
-        print self.n_list
+        #print filter(lambda x: np.array_equal(x.pnt, self.pnt), self.n_list)
+        print "orientation" + str(self.orientation)
+        print "test > " + str(self.orientation & blob_orientation.UP  == blob_orientation.UP)
+        print "test > " + str(self.orientation & blob_orientation.LEFT  == blob_orientation.LEFT)
+        print self.pnt
+
+        if self.orientation & blob_orientation.DOWN  == blob_orientation.DOWN:
+            return self.pnt + [0, 3]
+        else:
+            return None
 
     # retourne une matrice 9*9 relatif a la position du blobNode
     def matrice_neighboor(self):
@@ -43,10 +72,11 @@ class blob_nodes(node):
             node.debug_view(scale_factor, cv_image, color)
 
         x1 = tuple( ((self.pnt - [1, 1]) * scale_factor).astype(int))
-        # ! le point est décentré de 0.5 d'ou le rapport -1 / 2 sir ine matrice 9*9
+        # ! le point est décentré de 0.5 d'ou le rapport -1 / +2 sur une matrice 9*9
         x2 = tuple( ((self.pnt + [2, 2]) * scale_factor).astype(int))
 
         cv2.rectangle(cv_image, x1, x2, color, 2)
+
     # print
     def __str__(self):
         return "<#" +  str(id(self)) + " blob_nodes>" + " [pnt:" + str(self.pnt) + " - resolution: " + str(self.depth_resolution_plan) + " - px_value: " + str(self.px_value) + "]\n"

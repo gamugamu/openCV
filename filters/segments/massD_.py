@@ -102,8 +102,13 @@ class massD_(Step_segment):
         pnt = heaviest_filar.absolute_point_of_condensed_point()
 
         # note resolution à gerer.
-        blob = blob_nodes(pnt, px_value = self.massD_s.lhsl_image[pnt[0], pnt[1]], depth_resolution_plan = 0)
+        lhslimage = self.massD_s.lhsl_image
+        blob_pixel_lum = lhslimage[pnt[0], pnt[1]][1]
+        blob = blob_nodes(pnt, px_value = lhslimage[pnt[0], pnt[1]], depth_resolution_plan = 0)
         # retrouve les nodes voisines
-        blob.develop(lhslimage=self.massD_s.lhsl_image, threshold=40)
-
-        blob.debug_view(scale_factor, cv_image, (100, 50, 255))
+        while True:
+            newPnt = blob.develop(lhslimage=lhslimage, threshold=40,  blob_pixel_lum = blob_pixel_lum)
+            blob.debug_view(scale_factor, cv_image, (100, 50, 255))
+            if newPnt == None:
+                break
+            blob = blob_nodes(newPnt, px_value = self.massD_s.lhsl_image[newPnt[0], newPnt[1]], depth_resolution_plan = 0)
