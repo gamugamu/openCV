@@ -23,8 +23,15 @@ class blob_orientation:
         return orientation
 
 class blob_nodes(node):
-    n_list = None # [node]
+    n_list      = None # [node]
     orientation = blob_orientation.NONE
+    matrix_size = 0
+
+    def __init__(self, matrix_size, pnt, px_value, depth_resolution_plan):
+        self.matrix_size = matrix_size
+        self.pnt = pnt
+        self.depth_resolution_plan = depth_resolution_plan
+        self.px_value = px_value
 
     # constitue la liste des pixels qui lui sont similaire en luminosité.
     def develop(self, lhslimage, threshold=10, blob_pixel_lum=None):
@@ -34,12 +41,9 @@ class blob_nodes(node):
         # m_neighboor : matrix of node neighboor.
         m_neighboor = self.matrice_neighboor()
 
-        if blob_pixel_lum == None:
-            blob_pixel_lum = lhslimage[self.pnt[0], self.pnt[1]][1]
-
         # détection des voisins similaires:
-        for x in range(0, 3):
-            for y in range(0, 3):
+        for x in range(0, self.matrix_size[0]):
+            for y in range(0, self.matrix_size[1]):
                 # on cherche un voisin ayant aproximativement la meme intensité lumineuse.
                 pnt = m_neighboor[x][y]
                 # coordonné inversé?
@@ -51,13 +55,13 @@ class blob_nodes(node):
                     self.orientation |= blob_orientation.orientation_from_pnt(self.pnt - pnt)
 
         #print filter(lambda x: np.array_equal(x.pnt, self.pnt), self.n_list)
-        print "orientation" + str(self.orientation)
-        print "test > " + str(self.orientation & blob_orientation.UP  == blob_orientation.UP)
-        print "test > " + str(self.orientation & blob_orientation.LEFT  == blob_orientation.LEFT)
-        print self.pnt
+        #print "orientation" + str(self.orientation)
 
-        if self.orientation & blob_orientation.DOWN  == blob_orientation.DOWN:
-            return self.pnt + [0, 3]
+        if self.orientation & blob_orientation.DOWN == blob_orientation.DOWN:
+            # déplacement vers le bas, de la taille de la hauteur de la matrice.
+            m = blob_nodes.matrice_size_for_image_bounds(self.pnt + [0, self.matrix_size[1]], lhslimage)
+
+            return (m , self.pnt + [0, m[1]])
         else:
             return None
 
@@ -65,6 +69,32 @@ class blob_nodes(node):
     def matrice_neighboor(self):
         m_neighboor = np.array([ [[-1, -1], [0, -1], [1,-1]], [[-1, 0], [0,0], [1, 0]], [[-1,1], [0,1], [1,1]] ])
         return m_neighboor + self.pnt
+
+    # retourne la taille de la matrice possible pour la taille de l'image; afin de ne pas
+    # dépasser les index de la matrice des pixels de l'image.
+    @staticmethod
+    def matrice_size_for_image_bounds(pntBorder, image_size):
+        # par default la matrice est de 3*3. Si ce n'est pas possible, on redescend
+        # vers une taille plus petite.
+        matrice_size    = [3, 0]
+        height, width   = image_size.shape[:2]
+        #if pntBorder[0] - 1 <= 0:
+        #    matrice_size[0] = matrice_size[0] - 1
+
+        #if width - pntBorder[0] <= 0:
+        #    matrice_size[0] = matrice_size[0] - 1
+        print "pntBorder -> " + str(pntBorder) + "height :" + str(height)
+
+        matrice_size[1] = height - pntBorder[1]
+
+        if matrice_size[1] >= 3:
+            matrice_size[1] = 3
+        else:
+            matrice_size[1] = matrice_size[1] + 1
+
+        #print "S_Size -> " + str(matrice_size) + ":" + str(width)
+
+        return matrice_size
 
     # GUI
     def debug_view(self, scale_factor, cv_image, color):

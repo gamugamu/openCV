@@ -102,13 +102,21 @@ class massD_(Step_segment):
         pnt = heaviest_filar.absolute_point_of_condensed_point()
 
         # note resolution à gerer.
-        lhslimage = self.massD_s.lhsl_image
-        blob_pixel_lum = lhslimage[pnt[0], pnt[1]][1]
-        blob = blob_nodes(pnt, px_value = lhslimage[pnt[0], pnt[1]], depth_resolution_plan = 0)
+        lhslimage       = self.massD_s.lhsl_image
+        # la valeur que l'on veut retrouver lors de la recherche de pixel voisins.
+        px_value        = lhslimage[pnt[0], pnt[1]]
+        # le tableau de pixel en luminosité.
+        blob_pixel_lum  = lhslimage[pnt[0], pnt[1]][1]
+
+        matrice = blob_nodes.matrice_size_for_image_bounds(pnt, lhslimage)
+        blob    = blob_nodes(matrix_size = [3,3], pnt = pnt, px_value = px_value, depth_resolution_plan = 0)
+
         # retrouve les nodes voisines
         while True:
-            newPnt = blob.develop(lhslimage=lhslimage, threshold=40,  blob_pixel_lum = blob_pixel_lum)
+            blobInfo = blob.develop(lhslimage=lhslimage, threshold=40,  blob_pixel_lum = blob_pixel_lum)
+
             blob.debug_view(scale_factor, cv_image, (100, 50, 255))
-            if newPnt == None:
+            if blobInfo == None:
                 break
-            blob = blob_nodes(newPnt, px_value = self.massD_s.lhsl_image[newPnt[0], newPnt[1]], depth_resolution_plan = 0)
+
+            blob = blob_nodes(blobInfo[0], blobInfo[1], px_value = px_value, depth_resolution_plan = 0)
