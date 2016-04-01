@@ -43,13 +43,10 @@ class blob_nodes(node):
 
         # selection des pixels voisin (8 au total + le pixel central).
         # m_neighboor : matrix of node neighboor.
-        m_neighboor = self.matrice_neighboor()
 
         # détection des voisins similaires:
         for x in range(0, self.matrix_size[0]):
             for y in range(0, self.matrix_size[1]):
-                print "x:" + str(x) + " - y:" + str(y)
-
                 # on cherche un voisin ayant aproximativement la meme intensité lumineuse.
                 pnt = self.pnt + [x, y]
                 # coordonné inversé?
@@ -70,17 +67,13 @@ class blob_nodes(node):
         else:
             return None
 
+        # calcul de la matrice, depuis le point de direction.
         m = blob_nodes.matrice_size_for_image_bounds(pnt_orientation, lhslimage)
 
         if not m is None:
-            return (m , self.pnt + [0, m[1]])
+            return (m , self.pnt + [0, self.matrix_size[1]])
         else:
             return None
-
-    # retourne une matrice 9*9 relatif a la position du blobNode
-    def matrice_neighboor(self):
-        m_neighboor = np.array([ [[-1, -1], [0, -1], [1,-1]], [[-1, 0], [0,0], [1, 0]], [[-1,1], [0,1], [1,1]] ])
-        return m_neighboor + self.pnt
 
     # retourne la taille de la matrice possible pour la taille de l'image; afin de ne pas
     # dépasser les index de la matrice des pixels de l'image.
@@ -100,14 +93,13 @@ class blob_nodes(node):
 
         #if width - pntBorder[0] <= 0:
         #    matrice_size[0] = matrice_size[0] - 1
-        print "pntBorder -> " + str(pntBorder)
 
         matrice_size[1] = height - pntBorder[1]
-
-        if matrice_size[1] >= 3:
-            matrice_size[1] = 3
-        else:
-            matrice_size[1] = matrice_size[1] + 1
+        # si la distance est trop grande, on remet par default la taille
+        # standard de la matrice. Dans le cas contraire, la matrice ne peut
+        # pas être négative ni égale à 0.
+        if matrice_size[1] >= blob_nodes.defaut_Matrice_Size_3x3[1]:
+            matrice_size[1] = blob_nodes.defaut_Matrice_Size_3x3[1]
 
         #print "S_Size -> " + str(matrice_size) + ":" + str(width)
 
