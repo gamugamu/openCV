@@ -14,7 +14,7 @@ class blob_orientation:
     DOWN    = 8
 
     @staticmethod
-    def orientation_from_pnt(pnt):
+    def orientation_from_blob(pnt, matrix, list_nodes):
         orientation = blob_orientation.NONE
         orientation |= blob_orientation.LEFT    if pnt[0] == 1  else blob_orientation.NONE
         orientation |= blob_orientation.RIGHT   if pnt[0] == -1 else blob_orientation.NONE
@@ -35,7 +35,6 @@ class blob_nodes(node):
         self.pnt                    = pnt
         self.depth_resolution_plan  = depth_resolution_plan
         self.px_value = px_value
-        print "new blob -----" + str(matrix_size) + "---" + str(pnt)
 
     # constitue la liste des pixels qui lui sont similaire en luminosité.
     def develop(self, lhslimage, threshold=10, blob_pixel_lum=None):
@@ -43,24 +42,42 @@ class blob_nodes(node):
 
         # selection des pixels voisin (8 au total + le pixel central).
         # m_neighboor : matrix of node neighboor.
+        print "---------------------------"
+        linked_pnt = self.pnt
 
         # détection des voisins similaires:
         for x in range(0, self.matrix_size[0]):
             for y in range(0, self.matrix_size[1]):
                 # on cherche un voisin ayant aproximativement la meme intensité lumineuse.
                 pnt = self.pnt + [x, y]
-                # coordonné inversé?
+                # Note: les coordonnées de lhslimage semblent inversées.
                 px_value = lhslimage[pnt[1], pnt[0]]
-
                 if abs(int(blob_pixel_lum) - int(px_value[1])) < threshold:
-                    nb = node(pnt, px_value = px_value, depth_resolution_plan = 0)
-                    self.n_list.append(nb)
-                    self.orientation |= blob_orientation.orientation_from_pnt(self.pnt - pnt)
+                    # on verifie si la node est voisine de la chaine en cours. Si elle
+                    # est complétement détachée des autres (une node est voisine de l'autre
+                    # si elle est a côté sur l'axe x ou y), alors on ne la place pas dans la chaine.
+                    # a voir ce qu'il faudra en faire. Mais sera détachée du blob en cours.
+                    print "start -----------------------"
+                    for l_pnt in linked_pnt:
+                        print "loop---"
+                        if np.where((pnt - l_pnt) == 0)[0].size != 0:
+                            nb = node(pnt, px_value = px_value, depth_resolution_plan = 0)
+                            self.n_list.append(nb)
+                            linked_pnt = np.append(linked_pnt, pnt)
+                            # print presque.... le total de distance de x est y doit etre inférieur ou égale à 1)
+                            print "linked --- neighboorhood " + str(linked_pnt) + "--\n == " + str( np.where((pnt - l_pnt) == 0)[0].size )
+                            print "continue ---"
+                            break
+                        else:
+                            print "not linked -------"
 
-        #print filter(lambda x: np.array_equal(x.pnt, self.pnt), self.n_list)
-        #print "orientation" + str(self.orientation)
+        #self.orientation = blob_orientation.orientation_from_blob(self.pnt, self.matrix_size, self.list_nodes)
+        self.orientation = blob_orientation.DOWN
+
+        # en fonction des orientations données, vérifie si la direction a déjà été visitée.
+        # Si la direction n'a pas été visitée, vérifie si elle est accessible (pas en dehors
+        # du champs de la matrice d'image).
         pnt_orientation = None
-
         if self.orientation & blob_orientation.DOWN == blob_orientation.DOWN:
             # déplacement vers le bas, de la taille de la hauteur de la matrice.
             pnt_orientation = self.pnt + [0, self.matrix_size[1]]
