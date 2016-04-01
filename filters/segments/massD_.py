@@ -98,8 +98,8 @@ class massD_(Step_segment):
 
     def neighborhooding(self, scale_factor, cv_image):
         #on récupère le fil qui a le contraste le plus elevé.
-        heaviest_filar = sorted(self.f_list, key=lambda x: x.condensed_point(), reverse=True)[0]
-        pnt = heaviest_filar.absolute_point_of_condensed_point()
+        heaviest_filar  = sorted(self.f_list, key=lambda x: x.condensed_point(), reverse=True)[0]
+        pnt             = heaviest_filar.absolute_point_of_condensed_point()
 
         # note resolution à gerer.
         lhslimage       = self.massD_s.lhsl_image
@@ -109,13 +109,15 @@ class massD_(Step_segment):
         blob_pixel_lum  = lhslimage[pnt[0], pnt[1]][1]
 
         matrice = blob_nodes.matrice_size_for_image_bounds(pnt, lhslimage)
-        blob    = blob_nodes(matrix_size = [3,3], pnt = pnt, px_value = px_value, depth_resolution_plan = 0)
+        blob    = blob_nodes(matrix_size = blob_nodes.defaut_Matrice_Size_3x3, pnt = pnt, px_value = px_value, depth_resolution_plan = 0)
 
         # retrouve les nodes voisines
+        g_color = 40
         while True:
             blobInfo = blob.develop(lhslimage=lhslimage, threshold=40,  blob_pixel_lum = blob_pixel_lum)
 
-            blob.debug_view(scale_factor, cv_image, (100, 50, 255))
+            blob.debug_view(scale_factor, cv_image, (g_color, g_color, 255))
+            g_color = g_color + 50
             if blobInfo == None:
                 break
 
